@@ -1,4 +1,3 @@
-import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
 
@@ -11,26 +10,26 @@ import static com.codeborne.selenide.Selenide.*;
 
 class CardDeliveryTest {
 
-    private String generateDate(int daysFromNow) {
-        return LocalDate.now().plusDays(daysFromNow).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    private String generateDate(int addDays) {
+        return LocalDate.now().plusDays(addDays).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 
     @Test
     void shouldSubmitFormSuccessfully() {
-        open("http://localhost:9999"); // Открыть тестируемую страницу
+        open("http://localhost:9999");
 
         $("[data-test-id=city] input").setValue("Москва");
-        String planningDate = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        $("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a", Keys.BACK_SPACE); // Очистка поля
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
         $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79012345678");
         $("[data-test-id=agreement]").click();
         $("button.button").click();
 
-        $("[data-test-id=notification]").shouldBe(visible, Duration.ofSeconds(15)); // Убедиться, что уведомление видно
+        $("[data-test-id=notification]").shouldBe(visible, Duration.ofSeconds(15));
         $("[data-test-id=notification] .notification__title")
-                .shouldHave(exactText("Успешно!")); // Проверка заголовка
+                .shouldHave(exactText("Успешно!"));
         $("[data-test-id=notification] .notification__content")
                 .shouldHave(text("Встреча успешно забронирована на " + planningDate));
     }
@@ -41,13 +40,13 @@ class CardDeliveryTest {
 
         $("[data-test-id=city] input").setValue("InvalidCity");
         String planningDate = generateDate(3);
-        $("[data-test-id=date] input").doubleClick().sendKeys(planningDate);
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79012345678");
         $("[data-test-id=agreement]").click();
-        $(".button").click();
+        $("button.button").click();
 
-        // Проверка ошибки для поля "Город"
         $("[data-test-id=city].input_invalid .input__sub")
                 .shouldBe(visible)
                 .shouldHave(exactText("Доставка в выбранный город недоступна"));
@@ -58,11 +57,12 @@ class CardDeliveryTest {
         open("http://localhost:9999");
 
         $("[data-test-id=city] input").setValue("Москва");
-        $("[data-test-id=date] input").doubleClick().sendKeys("01.01.2023");
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[data-test-id=date] input").setValue("01.01.2023");
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79012345678");
         $("[data-test-id=agreement]").click();
-        $(".button").click();
+        $("button.button").click();
 
         $("[data-test-id=date] .input__sub")
                 .shouldBe(visible)
@@ -75,11 +75,12 @@ class CardDeliveryTest {
 
         $("[data-test-id=city] input").setValue("Москва");
         String planningDate = generateDate(3);
-        $("[data-test-id=date] input").doubleClick().sendKeys(planningDate);
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Ivan Ivanov");
         $("[data-test-id=phone] input").setValue("+79012345678");
         $("[data-test-id=agreement]").click();
-        $(".button").click();
+        $("button.button").click();
 
         $("[data-test-id=name].input_invalid .input__sub")
                 .shouldBe(visible)
@@ -92,11 +93,12 @@ class CardDeliveryTest {
 
         $("[data-test-id=city] input").setValue("Москва");
         String planningDate = generateDate(3);
-        $("[data-test-id=date] input").doubleClick().sendKeys(planningDate);
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Иванов");
-        $("[data-test-id=phone] input").setValue("12345"); // Невалидный телефон
+        $("[data-test-id=phone] input").setValue("12345");
         $("[data-test-id=agreement]").click();
-        $(".button").click();
+        $("button.button").click();
 
         $("[data-test-id=phone].input_invalid .input__sub")
                 .shouldBe(visible)
@@ -109,10 +111,11 @@ class CardDeliveryTest {
 
         $("[data-test-id=city] input").setValue("Москва");
         String planningDate = generateDate(3);
-        $("[data-test-id=date] input").doubleClick().sendKeys(planningDate);
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79012345678");
-        $(".button").click(); // Не нажимаем на чекбокс
+        $("button.button").click();
 
         $("[data-test-id=agreement].input_invalid")
                 .shouldBe(visible);
