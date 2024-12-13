@@ -1,3 +1,5 @@
+import com.codeborne.selenide.Configuration;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
 
@@ -9,6 +11,10 @@ import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 
 class CardDeliveryTest {
+    @BeforeAll
+    static void setUp() {
+        Configuration.baseUrl = "http://localhost:9999";
+    }
 
     private String generateDate(int addDays) {
         return LocalDate.now().plusDays(addDays).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
