@@ -1,14 +1,9 @@
-
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
-
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
-import java.util.HashMap;
-
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
@@ -137,45 +132,73 @@ class CardDeliveryTest {
                 .findBy(text("Москва"))
                 .click();
 //Календарь
-        SelenideElement calendarButton = $x("//button[contains(@class, 'icon-button') and .//span[contains(@class, 'icon_name_calendar')]]");
 
+        SelenideElement calendarButton = $x("//button[contains(@class, 'icon-button') and .//span[contains(@class, 'icon_name_calendar')]]");
         calendarButton.click();
+
         LocalDate today = LocalDate.now();
         LocalDate targetDate = today.plusDays(7);
         int targetMonthValue = targetDate.getMonthValue();
         int targetDay = targetDate.getDayOfMonth();
-
-        HashMap<String, Integer> months = new HashMap<>() {{
-            put("январь", 1);
-            put("февраль", 2);
-            put("март", 3);
-            put("апрель", 4);
-            put("май", 5);
-            put("июнь", 6);
-            put("июль", 7);
-            put("август", 8);
-            put("сентябрь", 9);
-            put("октябрь", 10);
-            put("ноябрь", 11);
-            put("декабрь", 12);
-        }};
+        int targetYear = targetDate.getYear();
 
         SelenideElement calendarHeader = $(".calendar__name");
+        String[] monthYear = calendarHeader.getText().split(" ");
+        String currentMonthName = monthYear[0];
+        int currentMonthValue = getMonthValue(currentMonthName);
+        int currentYear = Integer.parseInt(monthYear[1]);
 
-        while (true) {
-            String currentMonth = calendarHeader.getText().split(" ")[0].toLowerCase();
-            if (months.get(currentMonth) == targetMonthValue) {
-                break;
+        if (currentYear == targetYear && currentMonthValue == targetMonthValue) {
+            SelenideElement targetDayElement = $$("td.calendar__day")
+                    .find(text(String.valueOf(targetDay)));
+            targetDayElement.click();
+        } else {
+            if (targetMonthValue != currentMonthValue) {
+                $("div.calendar__arrow[data-step='1']").click();
             }
-            $("div.calendar__arrow[data-step='1']").click();
 
+            calendarHeader = $(".calendar__name");
+            monthYear = calendarHeader.getText().split(" ");
+            currentMonthName = monthYear[0];
+            currentMonthValue = getMonthValue(currentMonthName);
+
+            SelenideElement targetDayElement = $$("td.calendar__day")
+                    .find(text(String.valueOf(targetDay)));
+            targetDayElement.click();
         }
-
-        SelenideElement targetDayElement = $$("td.calendar__day")
-                .find(text(String.valueOf(targetDay)));
-        targetDayElement.click();
 
         String formattedDate = targetDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id='date'] input").shouldHave(value(formattedDate));
+    }
+
+    public int getMonthValue(String monthName) {
+        switch (monthName.toLowerCase()) {
+            case "январь":
+                return 1;
+            case "февраль":
+                return 2;
+            case "март":
+                return 3;
+            case "апрель":
+                return 4;
+            case "май":
+                return 5;
+            case "июнь":
+                return 6;
+            case "июль":
+                return 7;
+            case "август":
+                return 8;
+            case "сентябрь":
+                return 9;
+            case "октябрь":
+                return 10;
+            case "ноябрь":
+                return 11;
+            case "декабрь":
+                return 12;
+            default:
+                throw new IllegalArgumentException("Невалидное название месяца: " + monthName);
+        }
     }
 }
