@@ -1,11 +1,14 @@
-import com.codeborne.selenide.Configuration;
-import org.junit.jupiter.api.BeforeAll;
+
+import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import java.util.HashMap;
+
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
@@ -121,5 +124,58 @@ class CardDeliveryTest {
 
         $("[data-test-id=agreement].input_invalid")
                 .shouldBe(visible);
+    }
+
+    // Задание 2
+    @Test
+    void shouldSubmitFormWithCityAndDate() {
+        open("http://localhost:9999");
+//Город
+        SelenideElement cityInput = $("[data-test-id='city'] input");
+        cityInput.setValue("Мо");
+        $$("[class*='menu-item']")
+                .findBy(text("Москва"))
+                .click();
+//Календарь
+        SelenideElement calendarButton = $x("//button[contains(@class, 'icon-button') and .//span[contains(@class, 'icon_name_calendar')]]");
+
+        calendarButton.click();
+        LocalDate today = LocalDate.now();
+        LocalDate targetDate = today.plusDays(7);
+        int targetMonthValue = targetDate.getMonthValue();
+        int targetDay = targetDate.getDayOfMonth();
+
+        HashMap<String, Integer> months = new HashMap<>() {{
+            put("январь", 1);
+            put("февраль", 2);
+            put("март", 3);
+            put("апрель", 4);
+            put("май", 5);
+            put("июнь", 6);
+            put("июль", 7);
+            put("август", 8);
+            put("сентябрь", 9);
+            put("октябрь", 10);
+            put("ноябрь", 11);
+            put("декабрь", 12);
+        }};
+
+        SelenideElement calendarHeader = $(".calendar__name");
+
+        while (true) {
+            String currentMonth = calendarHeader.getText().split(" ")[0].toLowerCase();
+            if (months.get(currentMonth) == targetMonthValue) {
+                break;
+            }
+            $("div.calendar__arrow[data-step='1']").click();
+
+        }
+
+        SelenideElement targetDayElement = $$("td.calendar__day")
+                .find(text(String.valueOf(targetDay)));
+        targetDayElement.click();
+
+        String formattedDate = targetDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[data-test-id='date'] input").shouldHave(value(formattedDate));
     }
 }
